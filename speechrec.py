@@ -1,4 +1,6 @@
 import speech_recognition as sr
+from gtts import gTTS
+import os
 
 
 def recognizing_speech(recognizer, microphone, command):
@@ -50,10 +52,24 @@ def command_validation(response, dict):
             break
     return ("Command not found")
 
+def text_to_speech(text, header, lang='en'):
+    words = text.split()
+    my_header =''
+    for word in words:
+        if word in header:
+            my_header = word
+    text = ' '.join([word for word in words if word not in header])
+    text = text + ' ' + my_header
+    tts = gTTS(text=text, lang=lang)
+    tts.save("output.mp3")
+    os.system("start output.mp3")  # For Windows, use "afplay output.mp3" for macOS, "mpg321 output.mp3" for Linux
+
 
 r = sr.Recognizer()
 m = sr.Microphone()
 command = input('Enter y to input command, n to quit: ')
+
+my_validations_header = ['alpha', 'bravo', 'charlie', 'delta']
 
 
 while True:
@@ -61,7 +77,7 @@ while True:
         newcmd = (recognizing_speech(r, m, command))[2]
         print(newcmd)
         valid = command_validation(newcmd, keyWords)
-        print(valid)
+        text_to_speech(valid, my_validations_header)
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
         print("Program Exited")
