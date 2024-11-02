@@ -15,3 +15,7 @@ acronyms = {'Taking off':'tko\n',
             'Resetting pitch': 'rpi\n',
             'Resetting yaw': 'rya\n'}
 
+extra = {'granted': 'Granted',
+'detected': 'Detecting',
+'reset1': 'Resetting pitch',
+'reset2': 'Resetting yaw'}
