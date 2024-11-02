@@ -25,29 +25,30 @@ def recognizing_speech(recognizer, microphone, command):
 
     return response
 
-keyWords = {"Takeoff": "Taking off", 
-"Land": "Landing" ,
-'Sweep': "Sweeping area" ,
-'Take': "Taking target" ,
+keyWords = {"takeoff": "Taking off", 
+"land": "Landing" ,
+'sweep': "Sweeping area" ,
+'take': "Taking target" ,
 'RTB': "Returning to base",
-'Return to base': "Returning to base",
-'Confirm': "Roger, bravo",
-'Track': "Identifying",
-'Engage': "Engaging",
-'Target': 'Red, bravo',
-'Hold': 'Holding, bravo',
-'Shift': 'Shifting target, bravo',
-'Weapons free': 'Weapons down, bravo',
-'Monitor': 'Monitoring, bravo'}
+'return to base': "Returning to base",
+'confirm': "Roger, bravo",
+'track': "Identifying",
+'engage': "Engaging",
+'target': 'Red, bravo',
+'hold': 'Holding, bravo',
+'shift': 'Shifting target, bravo',
+'weapons free': 'Weapons down, bravo',
+'monitor': 'Monitoring, bravo'}
 
 def command_validation(response, dict):
-    if response == 'None':
-        return (0,"Command not detected")
-    for x in response:
-        if x in dict:
-            return (1, dict[x])
+    if response == 'none':
+        return ("Command not detected")
+    words = response.split()
+    for word in words:
+        if word in dict:
+            return (dict[word])
             break
-    return (0, "Command not found")
+    return ("Command not found")
 
 
 r = sr.Recognizer()
@@ -57,8 +58,10 @@ command = input('Enter y to input command, n to quit: ')
 
 while True:
     if command == 'y':
-        mytup = command_validation((recognizing_speech(r, m, command))[2], keyWords)
-        print(mytup(1))
+        newcmd = (recognizing_speech(r, m, command))[2]
+        print(newcmd)
+        valid = command_validation(newcmd, keyWords)
+        print(valid)
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
         print("Program Exited")
@@ -67,4 +70,4 @@ while True:
         command = input('Command not valid, enter again (y/n): ')
         pass
 
-    
+
