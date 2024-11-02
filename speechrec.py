@@ -8,42 +8,22 @@ def recognizing_speech(recognizer, microphone, command):
     if not isinstance(microphone, sr.Microphone):
         raise TypeError("`microphone` must be `Microphone` instance")
     
-    response = {
-    "success": True,
-    "error": None,
-    "transcription": None
-    }
+    response = [True, "none", "none"]
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
 
     try: 
-        response["transcription"] = recognizer.recognize_google(audio)
+        response[2] = recognizer.recognize_google(audio)
 
     except sr.RequestError:
-        response["success"] = False
-        response["error"] = "API unavailable"
+        response[0] = False
+        response[1] = "API unavailable"
 
     except sr.UnknownValueError:
-        response["error"] = "Unable to recognize speech"
+        response[1] = "Unable to recognize speech"
 
     return response
-
-
-r = sr.Recognizer()
-m = sr.Microphone()
-command = input('Enter y to input command, n to quit: ')
-
-while True:
-    if command == 'y':
-        print (recognizing_speech(r, m, command))
-        command = input('Enter y to input command, n to quit: ')
-    elif command == 'n':
-        print("Program Exited")
-        break
-    else:
-        command = input('Command not valid, enter again (y/n): ')
-        pass
 
 keyWords = {"Takeoff": "Taking off", 
 "Land": "Landing" ,
@@ -61,11 +41,30 @@ keyWords = {"Takeoff": "Taking off",
 'Monitor': 'Monitoring, bravo'}
 
 def command_validation(response, dict):
-    if response[2] == 'None':
+    if response == 'None':
         return (0,"Command not detected")
-    for x in response[2]:
+    for x in response:
         if x in dict:
             return (1, dict[x])
             break
     return (0, "Command not found")
 
+
+r = sr.Recognizer()
+m = sr.Microphone()
+command = input('Enter y to input command, n to quit: ')
+
+
+while True:
+    if command == 'y':
+        mytup = command_validation((recognizing_speech(r, m, command))[2], keyWords)
+        print(mytup(1))
+        command = input('Enter y to input command, n to quit: ')
+    elif command == 'n':
+        print("Program Exited")
+        break
+    else:
+        command = input('Command not valid, enter again (y/n): ')
+        pass
+
+    
