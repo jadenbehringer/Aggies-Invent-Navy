@@ -1,7 +1,7 @@
 import speech_recognition as sr
 
 
-def recognizing_speech(recognizer, microphone):
+def recognizing_speech(recognizer, microphone, command):
     if not isinstance(recognizer, sr.Recognizer):
         raise TypeError("`recognizer` must be `Recognizer` instance")
 
@@ -13,35 +13,59 @@ def recognizing_speech(recognizer, microphone):
     "error": None,
     "transcription": None
     }
+    with microphone as source:
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
 
-    command = input('Enter y for command, n to quit: ')
+    try: 
+        response["transcription"] = recognizer.recognize_google(audio)
 
-    while True:
-        if command == 'y':
-            with microphone as source:
-                recognizer.adjust_for_ambient_noise(source)
-                audio = recognizer.listen(source)
+    except sr.RequestError:
+        response["success"] = False
+        response["error"] = "API unavailable"
 
-            try: 
-                response["transcription"] = recognizer.recognize_google(audio)
+    except sr.UnknownValueError:
+        response["error"] = "Unable to recognize speech"
 
-            except sr.RequestError:
-                response["success"] = False
-                response["error"] = "API unavailable"
+    return response
 
-            except sr.UnknownValueError:
-                response["error"] = "Unable to recognize speech"
-
-            return response
-        elif command == 'n':
-            return "Program Exited"
-        else:
-            command = input('Command not valid, enter again (y/n): ')
-            pass
 
 r = sr.Recognizer()
 m = sr.Microphone()
+command = input('Enter y to input command, n to quit: ')
 
-print (recognizing_speech(r, m))
+while True:
+    if command == 'y':
+        print (recognizing_speech(r, m, command))
+        command = input('Enter y to input command, n to quit: ')
+    elif command == 'n':
+        print("Program Exited")
+        break
+    else:
+        command = input('Command not valid, enter again (y/n): ')
+        pass
 
+keyWords = {"Takeoff": "Taking off", 
+"Land": "Landing" ,
+'Sweep': "Sweeping area" ,
+'Take': "Taking target" ,
+'RTB': "Returning to base",
+'Return to base': "Returning to base",
+'Confirm': "Roger, bravo",
+'Track': "Identifying",
+'Engage': "Engaging",
+'Target': 'Red, bravo',
+'Hold': 'Holding, bravo',
+'Shift': 'Shifting target, bravo',
+'Weapons free': 'Weapons down, bravo',
+'Monitor': 'Monitoring, bravo'}
+
+def command_validation(response, dict):
+    if response[2] == 'None':
+        return (0,"Command not detected")
+    for x in response[2]:
+        if x in dict:
+            return (1, dict[x])
+            break
+    return (0, "Command not found")
 
