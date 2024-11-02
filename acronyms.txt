@@ -1,0 +1,14 @@
+"takeoff"
+"land"
+"granted"
+"denied"
+"confirm"
+
+
+"tko\n"
+"lng\n"
+"pt1\n"
+"pt2\n"
+"ale\n"
+"rpi\n"
+"rya\n"

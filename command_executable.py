@@ -36,7 +36,8 @@ def bot_response(filename):
     
     #Define the responses
     
-    keyWords = {"takeoff": "Taking off", 
+    keyWords = {
+"takeoff": "Taking off", 
 "land": "Landing" ,
 'sweep': "Sweeping area" ,
 'take': "Taking target" ,
@@ -49,7 +50,8 @@ def bot_response(filename):
 'hold': 'Holding',
 'shift': 'Shifting target',
 'weapons': 'Weapons down',
-'monitor': 'Monitoring'}
+'monitor': 'Monitoring'
+}
         
     engine = pyttsx3.init()
     
