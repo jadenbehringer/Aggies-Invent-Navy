@@ -36,22 +36,24 @@ def recognizing_speech(recognizer, microphone):
         response[1] = "API unavailable"
 
     except sr.UnknownValueError:
-        response[1] = "Unable to recognize speech"
+        response[1] = "Unable to recognize speech, please restate command"
 
     return response
 
-keyWords = {"take": "Taking off", 
+keyWords = {
+"take": "Taking off", 
+"off": "Taking off",
+"takeoff": "Taking off",
 "land": "Landing" ,
+"landing": "Landing",
 'sweep': "Sweeping area" ,
 'RTB': "Returning to base",
-'return': "Returning to base",
-'confirm': "Roger",
-'engage': "Engaging",
-'granted': 'Roger',
-'denied': 'Denied'}
+'return': "Returning to base"
+}
+
+confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative']
 
 def get_val(command):
-
     if command == "Taking off":
         return 1
     elif command == 'Landing':
@@ -60,24 +62,23 @@ def get_val(command):
         return 3
     elif command == 'Returning to base':
         return 4
-    elif command == 'Roger':
-        return 5
-    elif command == 'Engaging':
-        return 6
-    elif command == 'Denied':
-        return 7
     
 def action(val):
     if val == 1:
         write_to_serial('tko\n')
+        return 0
     elif val == 2:
         write_to_serial('lng\n')
+        return 0
     elif val == 3:
         write_to_serial('pt1\n')
+        return 1
     elif val == 4:
         write_to_serial('rya\n')
+        return 0
     elif val == 5:
         write_to_serial('pt2\n')
+        return 0
 
 def command_validation(response, dict):
     if response == 'none':
@@ -88,6 +89,15 @@ def command_validation(response, dict):
             return (dict[word])
             break
     return ("Command not found")
+
+def permission_validation(response, confirmedWords):
+    if response == 'none':
+        return ("Permission not detected, will not engage")
+    words = response.split()
+    for word in words:
+        if word in confirmedWords:
+            return ("Roger, engaging")
+    return ("Unable to recognize speech, please restate command")
 
 def text_to_speech(text, header, lang='en'):
     words = text.split()
@@ -116,7 +126,15 @@ while True:
         keyword = command_validation(newcmd, keyWords)
         text_to_speech(keyword, my_validations_header)
         ticker = get_val(keyword)
-        action(ticker)
+        if action(ticker):
+            text_to_speech('Permission to engage', my_validations_header)
+            confirmcommand = 'none'
+            while confirmcommand == 'none':
+                confirmcommand = recognizing_speech(r, m)[2]
+                response2 = (permission_validation(confirmcommand, confirmWords))
+                text_to_speech(response2, my_validations_header)
+            if response2 == 'Roger, engaging':
+                action(5)
         ticker = 0
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
