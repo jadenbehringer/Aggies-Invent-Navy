@@ -48,8 +48,12 @@ keyWords = {
 "land": "Landing" ,
 "landing": "Landing",
 'sweep': "Sweeping area" ,
+'scout': "Sweeping area",
 'RTB': "Returning to base",
-'return': "Returning to base"
+'return': "Returning to base",
+'base': "Returning to base",
+'fire': "Confiming target",
+'engage': "Confirming target"
 }
 
 confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative']
@@ -63,6 +67,8 @@ def get_val(command):
         return 3
     elif command == 'Returning to base':
         return 4
+    elif command == 'Confiming target':
+        return 6
     
 def action(val):
     if val == 1:
@@ -79,7 +85,9 @@ def action(val):
         return 0
     elif val == 5:
         write_to_serial('pt2\n')
-        return 0
+    elif val == 6:
+        return 2
+
 
 def command_validation(response, dict):
     if response == 'none':
@@ -90,6 +98,8 @@ def command_validation(response, dict):
             return (dict[word])
             break
     return ("Command not found")
+
+def requesting_permission(response):
 
 def permission_validation(response, confirmedWords):
     if response == 'none':
@@ -127,7 +137,7 @@ while True:
         keyword = command_validation(newcmd, keyWords)
         text_to_speech(keyword, my_validations_header)
         ticker = get_val(keyword)
-        if action(ticker):
+        if action(ticker) == 1:
             time.sleep(2)
             text_to_speech('Target spotted, permission to engage', my_validations_header)
             confirmcommand = 'none'
