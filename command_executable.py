@@ -40,17 +40,13 @@ def bot_response(filename):
 "takeoff": "Taking off", 
 "land": "Landing" ,
 'sweep': "Sweeping area" ,
-'take': "Taking target" ,
 'rtb': "Returning to base",
 'return': "Returning to base",
 'confirm': "Roger",
 'track': "Identifying",
 'engage': "Engaging",
 'target': 'Red',
-'hold': 'Holding',
-'shift': 'Shifting target',
-'weapons': 'Weapons down',
-'monitor': 'Monitoring'
+'weapons': 'Weapons down'
 }
         
     engine = pyttsx3.init()

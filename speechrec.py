@@ -1,9 +1,12 @@
 import speech_recognition as sr
 from gtts import gTTS
 import os
+import serial
 
+ticker = 0
+ser = serial.Serial('COM3', 9600)
 
-def recognizing_speech(recognizer, microphone, command):
+def recognizing_speech(recognizer, microphone):
     if not isinstance(recognizer, sr.Recognizer):
         raise TypeError("`recognizer` must be `Recognizer` instance")
 
@@ -30,7 +33,6 @@ def recognizing_speech(recognizer, microphone, command):
 keyWords = {"takeoff": "Taking off", 
 "land": "Landing" ,
 'sweep': "Sweeping area" ,
-'take': "Taking target" ,
 'RTB': "Returning to base",
 'return to base': "Returning to base",
 'confirm': "Roger, bravo",
@@ -40,7 +42,47 @@ keyWords = {"takeoff": "Taking off",
 'hold': 'Holding, bravo',
 'shift': 'Shifting target, bravo',
 'weapons free': 'Weapons down, bravo',
-'monitor': 'Monitoring, bravo'}
+'monitor': 'Monitoring, bravo',
+'granted': 'Granted',
+'detected': 'Detecting',
+'reset1': 'Resetting pitch',
+'reset2': 'Resetting yaw'}
+
+def action(command):
+
+    if command == 'takeoff':
+        return 1
+    elif command == 'land':
+        return 2
+    elif command == 'sweep':
+        return 3
+    elif command == 'RTB' or command == 'return to base':
+        return 4
+    elif command == 'confirm':
+        return 5
+    elif command == 'track':
+        return 6
+    elif command == 'engage':
+        return 7
+    elif command == 'target':
+        return  8
+    elif command == 'hold':
+        return  9
+    elif command == 'shift':
+        return 10
+    elif command == 'weapons free':
+        return 11
+    elif command == 'monitor':
+        return 12
+    elif command == 'granted':
+        return 13
+    elif command == 'detected':
+        return 14
+    elif command == 'reset1':
+        return 15
+    elif command == 'reset2':
+        return 16
+    return 0
 
 def command_validation(response, dict):
     if response == 'none':
@@ -76,8 +118,10 @@ while True:
     if command == 'y':
         newcmd = (recognizing_speech(r, m, command))[2]
         print(newcmd)
-        valid = command_validation(newcmd, keyWords)
-        text_to_speech(valid, my_validations_header)
+        keyword = command_validation(newcmd, keyWords)
+        text_to_speech(keyword, my_validations_header)
+        ticker = action(keyword)
+
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
         print("Program Exited")
