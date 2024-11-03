@@ -41,6 +41,18 @@ def recognizing_speech(recognizer, microphone):
 
     return response
 
+def text_to_speech(text, header, lang='en'):
+    words = text.split()
+    my_header =''
+    for word in words:
+        if word.lower() in header:
+            my_header = word
+    text = ' '.join([word for word in words if word not in header])
+    text = text + ' ' + my_header
+    tts = gTTS(text=text, lang=lang)
+    tts.save("output.mp3")
+    os.system("start output.mp3")  # For Windows, use "afplay output.mp3" for macOS, "mpg321 output.mp3" for Linux
+
 keyWords = {
 "take": "Taking off", 
 "off": "Taking off",
@@ -56,7 +68,7 @@ keyWords = {
 'engage': "Confirming target"
 }
 
-confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative']
+confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative', 'positive']
 
 def get_val(command):
     if command == "Taking off":
@@ -67,7 +79,7 @@ def get_val(command):
         return 3
     elif command == 'Returning to base':
         return 4
-    elif command == 'Confiming target':
+    elif command == 'Confirming target':
         return 6
     
 def action(val):
@@ -88,83 +100,104 @@ def action(val):
     elif val == 6:
         return 2
 
+def test_action(val):
+    if val == 1:
+        #write_to_serial('tko\n')
+        return 0
+    elif val == 2:
+        #write_to_serial('lng\n')
+        return 0
+    elif val == 3:
+        #write_to_serial('pt1\n')
+        return 1
+    elif val == 4:
+        #write_to_serial('rya\n')
+        return 0
+    elif val == 5:
+       #write_to_serial('pt2\n')
+       pass
+    elif val == 6:
+        return 2
 
 def command_validation(response, dict):
     if response == 'none':
-        return ("Command not detected")
+        return ("Unable to recognize speech")
     words = response.split()
     for word in words:
         if word in dict:
             return (dict[word])
             break
-    return ("Command not found")
-
-def requesting_permission(cc):
-    if cc == 'none':
-        return ("Unable to recognize speech, please restate command")
-    words = cc.split()
-    for word in words:
-        if word in confirmWords:
-            return ("Roger, engaging")
-            break
-    return ("Permission not detected, will not engage")
+    return ("Unkown command")
 
 def permission_validation(response, confirmedWords):
     if response == 'none':
-        return ("Permission not detected, will not engage")
+        return ("Unable to recognize speech, please restate command")
     words = response.split()
     for word in words:
         if word in confirmedWords:
             return ("Roger, engaging")
-    return ("Unable to recognize speech, please restate command")
+    return ("Permission not detected, will not engage")
 
-def text_to_speech(text, header, lang='en'):
-    words = text.split()
-    my_header =''
-    for word in words:
-        if word in header:
-            my_header = word
-    text = ' '.join([word for word in words if word not in header])
-    text = text + ' ' + my_header
-    tts = gTTS(text=text, lang=lang)
-    tts.save("output.mp3")
-    os.system("start output.mp3")  # For Windows, use "afplay output.mp3" for macOS, "mpg321 output.mp3" for Linux
 
+def requesting_permission(r, m, confirmWords, valheader):
+    speech = recognizing_speech(r, m)[2]
+    response = permission_validation(speech, confirmWords)
+    text_to_speech(response, valheader)
+    return [speech, response]
 
 r = sr.Recognizer()
 m = sr.Microphone()
-command = input('Enter y to input command, n to quit: ')
+cntrl = input('Enter y to input command, n to quit: ')
 
 my_validations_header = ['alpha', 'bravo', 'charlie', 'delta']
 
 
 while True:
-    if command == 'y':
-        newcmd = (recognizing_speech(r, m))[2]
-        print(newcmd)
-        keyword = command_validation(newcmd, keyWords)
-        text_to_speech(keyword, my_validations_header)
-        ticker = get_val(keyword)
-        if action(ticker) == 1:
-            time.sleep(2)
-            text_to_speech('Target spotted, permission to engage', my_validations_header)
-            confirmcommand = 'none'
-            while confirmcommand == 'none':
-                time.sleep(2)
-                confirmcommand = recognizing_speech(r, m)[2]
-                response2 = (permission_validation(confirmcommand, confirmWords))
-                text_to_speech(response2, my_validations_header)
-            if response2 == 'Roger, engaging':
-                action(5)
-                time.sleep(1)
-                text_to_speech('Target Destroyed', my_validations_header)
+    if cntrl == 'y':
         ticker = 0
-        command = input('Enter y to input command, n to quit: ')
-    elif command == 'n':
+        speech = (recognizing_speech(r, m))[2]
+        print(speech)
+        response = command_validation(speech, keyWords)
+        text_to_speech(response, my_validations_header)
+        ticker = get_val(response)
+        if action(ticker) == 1:
+            time.sleep(3.5)
+            text_to_speech('Target spotted, requesting permission to engage', my_validations_header)
+            time.sleep(4)
+            permission = 'none'
+            while permission == 'none':
+                list1 = requesting_permission(r, m, confirmWords, my_validations_header)
+                permission = list1[0]
+                response = list1[1]
+                text_to_speech(response, my_validations_header)
+                time.sleep(3.5)
+            if response == 'Roger, engaging':
+                action(5)
+                time.sleep(2)
+                text_to_speech('Target Destroyed, awaiting next command', my_validations_header)
+        elif action(ticker) == 2:
+            time.sleep(3.5)
+            text_to_speech('Requesting confirmation to engage', my_validations_header)
+            time.sleep(4)
+            permission = 'none'
+            while permission == 'none':
+                list1 = requesting_permission(r, m, confirmWords, my_validations_header)
+                permission = list1[0]
+                response = list1[1]
+                text_to_speech(response, my_validations_header)
+                time.sleep(3.5)
+            if response == 'Roger, engaging':
+                action(5)
+                time.sleep(2)
+                text_to_speech('Target Destroyed, awaiting next command', my_validations_header)
+        ticker = 0
+        cntrl = input('Enter y to input command, n to quit: ')
+    elif cntrl == 'n':
+        ticker = 0
         print("Program Exited")
         break
     else:
-        command = input('Command not valid, enter again (y/n): ')
+        cntrl = input('Cntrl not valid, enter again (y/n): ')
         pass
 
 
