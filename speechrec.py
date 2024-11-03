@@ -99,7 +99,15 @@ def command_validation(response, dict):
             break
     return ("Command not found")
 
-def requesting_permission(response):
+def requesting_permission(cc):
+    if cc == 'none':
+        return ("Unable to recognize speech, please restate command")
+    words = cc.split()
+    for word in words:
+        if word in confirmWords:
+            return ("Roger, engaging")
+            break
+    return ("Permission not detected, will not engage")
 
 def permission_validation(response, confirmedWords):
     if response == 'none':
