@@ -2,6 +2,7 @@ import speech_recognition as sr
 from gtts import gTTS
 import os
 import serial
+import time
 
 ticker = 0
 
@@ -127,9 +128,11 @@ while True:
         text_to_speech(keyword, my_validations_header)
         ticker = get_val(keyword)
         if action(ticker):
-            text_to_speech('Permission to engage', my_validations_header)
+            time.sleep(2)
+            text_to_speech('Target spotted, permission to engage', my_validations_header)
             confirmcommand = 'none'
             while confirmcommand == 'none':
+                time.sleep(2)
                 confirmcommand = recognizing_speech(r, m)[2]
                 response2 = (permission_validation(confirmcommand, confirmWords))
                 text_to_speech(response2, my_validations_header)
