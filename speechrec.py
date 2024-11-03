@@ -12,7 +12,7 @@ ser.open()
 
 def write_to_serial(command):
     # Output the string "tko\n"
-    utf = command.decode('utf-8')
+    utf = command.encode('utf-8')
     ser.write(utf)
     # Close the serial port
 
@@ -40,61 +40,44 @@ def recognizing_speech(recognizer, microphone):
 
     return response
 
-keyWords = {"takeoff": "Taking off", 
+keyWords = {"take": "Taking off", 
 "land": "Landing" ,
 'sweep': "Sweeping area" ,
 'RTB': "Returning to base",
-'return to base': "Returning to base",
-'confirm': "Roger, bravo",
-'track': "Identifying",
+'return': "Returning to base",
+'confirm': "Roger",
 'engage': "Engaging",
-'target': 'Red, bravo',
-'hold': 'Holding, bravo',
-'shift': 'Shifting target, bravo',
-'weapons free': 'Weapons down, bravo',
-'monitor': 'Monitoring, bravo',
-'granted': 'Granted',
-'detected': 'Detecting',
-'reset1': 'Resetting pitch',
-'reset2': 'Resetting yaw',
+'granted': 'Roger',
 'denied': 'Denied'}
 
 def get_val(command):
 
-    if command == 'takeoff':
+    if command == "Taking off":
         return 1
-    elif command == 'land':
+    elif command == 'Landing':
         return 2
-    elif command == 'sweep':
+    elif command == 'Sweeping area':
         return 3
-    elif command == 'RTB' or command == 'return to base':
+    elif command == 'Returning to base':
         return 4
-    elif command == 'confirm':
+    elif command == 'Roger':
         return 5
-    elif command == 'engage':
+    elif command == 'Engaging':
         return 6
-    elif command == 'monitor':
-        return 12
-    elif command == 'granted':
-        return 13
-    elif command == 'detected':
-        return 14
-    elif command == 'reset1':
-        return 15
-    elif command == 'reset2':
-        return 16
+    elif command == 'Denied':
+        return 7
     
 def action(val):
     if val == 1:
-        write_to_serial(b'tko\n')
+        write_to_serial('tko\n')
     elif val == 2:
-        write_to_serial(b'lng\n')
+        write_to_serial('lng\n')
     elif val == 3:
-        write_to_serial(b'pt1\n')
+        write_to_serial('pt1\n')
     elif val == 4:
-        write_to_serial(b'rtb\n')
-    
-    
+        write_to_serial('rya\n')
+    elif val == 5:
+        write_to_serial('pt2\n')
 
 def command_validation(response, dict):
     if response == 'none':
@@ -128,8 +111,7 @@ my_validations_header = ['alpha', 'bravo', 'charlie', 'delta']
 
 while True:
     if command == 'y':
-        ser = serial.Serial('COM3', 9600)
-        newcmd = (recognizing_speech(r, m, command))[2]
+        newcmd = (recognizing_speech(r, m))[2]
         print(newcmd)
         keyword = command_validation(newcmd, keyWords)
         text_to_speech(keyword, my_validations_header)
