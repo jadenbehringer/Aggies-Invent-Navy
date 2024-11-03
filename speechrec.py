@@ -64,11 +64,11 @@ keyWords = {
 'RTB': "Returning to base",
 'return': "Returning to base",
 'base': "Returning to base",
-'fire': "Confiming target",
+'fire': "Confirming target",
 'engage': "Confirming target"
 }
 
-confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative', 'positive']
+confirmWords = ['confirm', 'granted', 'yes' , 'roger', 'affirmative', 'positive', 'approved']
 
 def get_val(command):
     if command == "Taking off":
@@ -160,7 +160,7 @@ while True:
         response = command_validation(speech, keyWords)
         text_to_speech(response, my_validations_header)
         ticker = get_val(response)
-        if action(ticker) == 1:
+        if test_action(ticker) == 1:
             time.sleep(3.5)
             text_to_speech('Target spotted, requesting permission to engage', my_validations_header)
             time.sleep(4)
@@ -172,10 +172,10 @@ while True:
                 text_to_speech(response, my_validations_header)
                 time.sleep(3.5)
             if response == 'Roger, engaging':
-                action(5)
+                test_action(5)
                 time.sleep(2)
                 text_to_speech('Target Destroyed, awaiting next command', my_validations_header)
-        elif action(ticker) == 2:
+        elif test_action(ticker) == 2:
             time.sleep(3.5)
             text_to_speech('Requesting confirmation to engage', my_validations_header)
             time.sleep(4)
@@ -187,7 +187,7 @@ while True:
                 text_to_speech(response, my_validations_header)
                 time.sleep(3.5)
             if response == 'Roger, engaging':
-                action(5)
+                test_action(5)
                 time.sleep(2)
                 text_to_speech('Target Destroyed, awaiting next command', my_validations_header)
         ticker = 0
