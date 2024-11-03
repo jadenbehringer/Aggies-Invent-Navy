@@ -4,7 +4,17 @@ import os
 import serial
 
 ticker = 0
-ser = serial.Serial('COM3', 9600)
+
+# Configure the serial port
+ser = serial.Serial('COM3', 9600)  # Replace 'COM1' with your serial port
+ser.close()
+ser.open()
+
+def write_to_serial(command):
+    # Output the string "tko\n"
+    utf = command.decode('utf-8')
+    ser.write(utf)
+    # Close the serial port
 
 def recognizing_speech(recognizer, microphone):
     if not isinstance(recognizer, sr.Recognizer):
@@ -46,9 +56,10 @@ keyWords = {"takeoff": "Taking off",
 'granted': 'Granted',
 'detected': 'Detecting',
 'reset1': 'Resetting pitch',
-'reset2': 'Resetting yaw'}
+'reset2': 'Resetting yaw',
+'denied': 'Denied'}
 
-def action(command):
+def get_val(command):
 
     if command == 'takeoff':
         return 1
@@ -60,18 +71,8 @@ def action(command):
         return 4
     elif command == 'confirm':
         return 5
-    elif command == 'track':
-        return 6
     elif command == 'engage':
-        return 7
-    elif command == 'target':
-        return  8
-    elif command == 'hold':
-        return  9
-    elif command == 'shift':
-        return 10
-    elif command == 'weapons free':
-        return 11
+        return 6
     elif command == 'monitor':
         return 12
     elif command == 'granted':
@@ -82,7 +83,18 @@ def action(command):
         return 15
     elif command == 'reset2':
         return 16
-    return 0
+    
+def action(val):
+    if val == 1:
+        write_to_serial(b'tko\n')
+    elif val == 2:
+        write_to_serial(b'lng\n')
+    elif val == 3:
+        write_to_serial(b'pt1\n')
+    elif val == 4:
+        write_to_serial(b'rtb\n')
+    
+    
 
 def command_validation(response, dict):
     if response == 'none':
@@ -116,12 +128,14 @@ my_validations_header = ['alpha', 'bravo', 'charlie', 'delta']
 
 while True:
     if command == 'y':
+        ser = serial.Serial('COM3', 9600)
         newcmd = (recognizing_speech(r, m, command))[2]
         print(newcmd)
         keyword = command_validation(newcmd, keyWords)
         text_to_speech(keyword, my_validations_header)
-        ticker = action(keyword)
-
+        ticker = get_val(keyword)
+        action(ticker)
+        ticker = 0
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
         print("Program Exited")
