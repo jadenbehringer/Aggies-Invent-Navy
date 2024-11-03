@@ -138,6 +138,8 @@ while True:
                 text_to_speech(response2, my_validations_header)
             if response2 == 'Roger, engaging':
                 action(5)
+                time.sleep(1)
+                text_to_speech('Target Destroyed', my_validations_header)
         ticker = 0
         command = input('Enter y to input command, n to quit: ')
     elif command == 'n':
