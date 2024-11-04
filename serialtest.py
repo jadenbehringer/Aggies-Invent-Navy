@@ -7,9 +7,6 @@ import time
 ticker = 0
 
 
-
-#python C:\Users\medve\Downloads\serialtest.py
-
 # Configure the serial port
 ser = serial.Serial('COM3', 9600)  # Replace 'COM1' with your serial port
 ser.close()
